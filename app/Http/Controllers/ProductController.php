@@ -11,11 +11,28 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // return view('dashboard');
-        $data = Product::all();
-        return view('master-data.product-master.index-product', compact('data'));
+        // Membuat query builder baru untuk model Product
+        $query = Product::query();
+        
+        // Cek apakah ada parameter 'search' di request
+        if ($request->has('search') && $request->search != '') {
+            // Melakukan pencarian berdasarkan nama produk
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('product_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Sorting
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction', 'asc');
+        $query->orderBy($sort, $direction);
+
+        // Pagination
+        $products = $query->paginate(5);
+        return view("master-data.product-master.index-product", compact('products', 'sort', 'direction'));
     }
 
     /**
@@ -31,7 +48,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // validasi input data
+        // Validasi input data
         $validasi_data = $request->validate([
             'product_name' => 'required|string|max:255',
             'unit' => 'required|string|max:50',
@@ -41,10 +58,15 @@ class ProductController extends Controller
             'producer' => 'required|string|max:255',
         ]);
 
-        // Proses simpan data kedalam database
-        Product::create($validasi_data);
+        // Proses simpan data ke database
+        $simpan = Product::create($validasi_data);
 
-        return redirect()->back()->with('success', 'Product created successfully!');
+        // Cek apakah berhasil
+        if ($simpan) {
+            return redirect()->route('product-index')->with('success', 'Produk berhasil ditambahkan!');
+        } else {
+            return redirect()->back()->with('error', 'Produk gagal ditambahkan!');
+        }
     }
 
     /**
@@ -52,7 +74,8 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+        return view('master-data.product-master.detail-product', compact('product'));
     }
 
     /**
@@ -70,16 +93,16 @@ class ProductController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'product_name' => 'required|string|max:255',
-            'unit' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'information' => 'nullable|string',
-            'qty' => 'required|integer|min:1',
-            'producer' => 'required|string|max:255',
-        ]);
+        'product_name' => 'required|string|max:255',
+        'unit' => 'required|string|max:255',
+        'type' => 'required|string|max:255',
+        'information' => 'nullable|string',
+        'qty' => 'required|integer|min:1',
+        'producer' => 'required|string|max:255',
+    ]);
 
         $product = Product::findOrFail($id);
-        $product->update([
+        $update = $product->update([
             'product_name' => $request->product_name,
             'unit' => $request->unit,
             'type' => $request->type,
@@ -88,7 +111,11 @@ class ProductController extends Controller
             'producer' => $request->producer,
         ]);
 
-        return redirect()->back()->with('success', 'Product updated successfully!');
+        if ($update) {
+            return redirect()->route('product-index')->with('success', 'Produk berhasil diperbarui!');
+        } else {
+            return redirect()->back()->with('error', 'Produk gagal diperbarui!');
+        }
     }
 
     /**
@@ -96,6 +123,13 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $product = Product::find(999);
+
+        if ($product) {
+            $product->delete();
+            return redirect()->back()->with('success', 'Produk berhasil dihapus!');
+        }
+
+        return redirect()->back()->with('error', 'Produk tidak ditemukan!');
     }
 }

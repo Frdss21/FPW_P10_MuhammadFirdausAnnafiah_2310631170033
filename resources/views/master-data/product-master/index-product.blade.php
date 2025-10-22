@@ -7,73 +7,146 @@
 
     <div class="container p-4 mx-auto">
         <div class="overflow-x-auto">
-            <a href="{{ route('product-create')}}">
+
+            @if (session('success'))
+            <div class="p-4 mb-4 text-green-800 bg-green-200 border border-green-300 rounded-lg">
+                {{ session('success') }}
+            </div>
+            @elseif (session('error'))
+            <div class="p-4 mb-4 text-red-800 bg-red-200 border border-red-300 rounded-lg">
+                {{ session('error') }}
+            </div>
+            @endif
+
+            <form method="GET" action="{{ route('product-index') }}" class="mb-4 flex items-center">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk..." class="w-1/4 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button type="submit" class="ml-2 rounded-lg bg-green-500 px-4 py-2 text-white shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    Cari
+                </button>
+            </form>
+
+            <a href="{{ route('product-create') }}">
                 <button class="px-6 py-4 text-white bg-green-500 border border-green-500 rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
                     Add product data
                 </button>
             </a>
 
             <table class="min-w-full border border-collapse border-gray-200">
-
                 <thead>
                     <tr class="bg-gray-100">
-                        <th class="px-4 py-2 text-left text-gray-600 borderborder-gray-200">ID</th>
-                        <th class="px-4 py-2 text-left text-gray-600 borderborder-gray-200">Product Name</th>
-                        <th class="px-4 py-2 text-left text-gray-600 borderborder-gray-200">Unit</th>
-                        <th class="px-4 py-2 text-left text-gray-600 borderborder-gray-200">Type</th>
-                        <th class="px-4 py-2 text-left text-gray-600 borderborder-gray-200">information</th>
-                        <th class="px-4 py-2 text-left text-gray-600 borderborder-gray-200">qty</th>
-                        <th class="px-4 py-2 text-left text-gray-600 borderborder-gray-200">producer</th>
-                        <th class="px-4 py-2 text-left text-gray-600 borderborder-gray-200">Aksi</th>
+                        <th class="px-4 py-2 text-left text-gray-600 border border-gray-200">ID</th>
+                        <th class="px-4 py-2 text-left text-gray-600 border border-gray-200">Product Name</th>
+
+                        @foreach (['unit', 'type', 'information', 'qty', 'producer'] as $column)
+                            <th class="px-4 py-2 border border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <span class="capitalize">{{ $column }}</span>
+                                    <a href="{{ route('product-index', [
+                                        'sort' => $column,
+                                        'direction' => (request('sort') === $column && request('direction') === 'asc') ? 'desc' : 'asc']) }}" 
+                                    class="text-gray-500 hover:text-blue-600 text-sm font-semibold">
+                                        {{ (request('sort') === $column && request('direction') === 'asc') ? '˅' : '^' }}
+                                    </a>
+                                </div>
+                            </th>
+                        @endforeach
+
+                        <th class="px-4 py-2 text-left text-gray-600 border border-gray-200">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($data as $item)
+                    @forelse ($products as $item)
                     <tr class="bg-white">
-                        <td class="px-4 py-2 border border-gray-200">{{$item->id }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{$item->product_name }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{$item->unit }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{$item->type }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{$item->information }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{$item->qty }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{$item->producer }}</td>
+                        <td class="px-4 py-2 border border-gray-200">{{ $item->id }}</td>
+                        <td class="px-4 py-2 border border-gray-200 hover:text-blue-500 hover:underline">
+                            <a href="{{ route('product-detail', $item->id) }}">
+                            {{ $item->product_name }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-2 border border-gray-200">{{ $item->unit }}</td>
+                        <td class="px-4 py-2 border border-gray-200">{{ $item->type }}</td>
+                        <td class="px-4 py-2 border border-gray-200">{{ $item->information }}</td>
+                        <td class="px-4 py-2 border border-gray-200">{{ $item->qty }}</td>
+                        <td class="px-4 py-2 border border-gray-200">{{ $item->producer }}</td>
                         <td class="px-4 py-2 border border-gray-200">
-                            <a href="{{ route('product-edit', $item->id) }}"
-                                class="px-2 text-blue-600 hover:text-blue-800">Edit</a>
-                            <button class="px-2 text-red-600 hover:text-red-800" onclick="confirmDelete(1)">Hapus</button>
+                            <a href="{{ route('product-edit', $item->id) }}" class="px-2 text-blue-600 hover:text-blue-800">Edit</a>
+                            <button class="px-2 text-red-600 hover:text-red-800" onclick="confirmDelete('{{ route('product-delete', $item->id) }}')">
+                            Hapus
+                            </button>
                         </td>
                     </tr>
-                    @endforeach
-                    <!-- Tambahkan baris lainnya sesuai kebutuhan -->
+                    @empty
+                    <tr>
+                        <td colspan="8" class="text-center text-red-600 font-semibold py-4">No products found</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
+            {{-- Pagination --}}
+            <div class="mt-4">
+                {{-- {{ $products->links() }} --}}
+                {{ $products->appends(['search' => request('search')])->links() }}
+            </div>
         </div>
     </div>
-    <script>
-        function confirmDelete(id, deleteUrl) {
-            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                // Jika user mengonfirmasi, kita dapat membuat form dan mengirimkan permintaan delete
-                let form = document.createElement('form');
-                form.method = 'POST';
-                form.action = deleteUrl;
-                // Tambahkan CSRF token
-                let csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_token';
-                csrfInput.value = '{{ csrf_token() }}';
-                form.appendChild(csrfInput);
-                // Tambahkan method spoofing untuk DELETE (karena HTML form hanya mendukung GET dan POST)
-                let methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'DELETE';
-                form.appendChild(methodInput);
-                // Tambahkan form ke body dan submit
-                document.body.appendChild(form);
-                form.submit();
 
-            }
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if(session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
+    @if(session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: '{{ session('error') }}',
+                showConfirmButton: true
+            });
+        </script>
+    @endif
+    
+    <script>
+        function confirmDelete(deleteUrl) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = deleteUrl;
+
+                    let csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = '{{ csrf_token() }}';
+                    form.appendChild(csrfInput);
+
+                    let methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
         }
     </script>
-
 </x-app-layout>
