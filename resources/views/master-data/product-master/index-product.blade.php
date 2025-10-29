@@ -20,14 +20,32 @@
 
             <form method="GET" action="{{ route('product-index') }}" class="mb-4 flex items-center">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk..." class="w-1/4 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <button type="submit" class="ml-2 rounded-lg bg-green-500 px-4 py-2 text-white shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button type="submit" class="ml-2 rounded-lg bg-blue-500 px-4 py-2 text-white shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
                     Cari
                 </button>
             </form>
 
             <a href="{{ route('product-create') }}">
-                <button class="px-6 py-4 text-white bg-green-500 border border-green-500 rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button class="px-6 py-4 text-white bg-pink-500 border border-green-500 rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
                     Add product data
+                </button>
+            </a>
+
+            <a href="{{ route('product-export-excel') }}">
+                <button class="px-6 py-4 text-white bg-green-500 border border-green-500 rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    Export to Excel
+                </button>
+            </a>
+
+            <a href="{{ route('product-export-pdf') }}">
+                <button class="px-6 py-4 text-white bg-red-500 border border-red-500 rounded-lg shadow-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    Export to PDF
+                </button>
+            </a>
+
+            <a href="{{ route('product-export-jpg') }}">
+                <button class="px-6 py-4 text-white bg-yellow-500 border border-yellow-500 rounded-lg shadow-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    Export to JPG
                 </button>
             </a>
 
@@ -38,17 +56,17 @@
                         <th class="px-4 py-2 text-left text-gray-600 border border-gray-200">Product Name</th>
 
                         @foreach (['unit', 'type', 'information', 'qty', 'producer'] as $column)
-                            <th class="px-4 py-2 border border-gray-200">
-                                <div class="flex justify-between items-center">
-                                    <span class="capitalize">{{ $column }}</span>
-                                    <a href="{{ route('product-index', [
+                        <th class="px-4 py-2 border border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <span class="capitalize">{{ $column }}</span>
+                                <a href="{{ route('product-index', [
                                         'sort' => $column,
-                                        'direction' => (request('sort') === $column && request('direction') === 'asc') ? 'desc' : 'asc']) }}" 
+                                        'direction' => (request('sort') === $column && request('direction') === 'asc') ? 'desc' : 'asc']) }}"
                                     class="text-gray-500 hover:text-blue-600 text-sm font-semibold">
-                                        {{ (request('sort') === $column && request('direction') === 'asc') ? '˅' : '^' }}
-                                    </a>
-                                </div>
-                            </th>
+                                    {{ (request('sort') === $column && request('direction') === 'asc') ? '˅' : '^' }}
+                                </a>
+                            </div>
+                        </th>
                         @endforeach
 
                         <th class="px-4 py-2 text-left text-gray-600 border border-gray-200">Aksi</th>
@@ -60,7 +78,7 @@
                         <td class="px-4 py-2 border border-gray-200">{{ $item->id }}</td>
                         <td class="px-4 py-2 border border-gray-200 hover:text-blue-500 hover:underline">
                             <a href="{{ route('product-detail', $item->id) }}">
-                            {{ $item->product_name }}
+                                {{ $item->product_name }}
                             </a>
                         </td>
                         <td class="px-4 py-2 border border-gray-200">{{ $item->unit }}</td>
@@ -71,7 +89,7 @@
                         <td class="px-4 py-2 border border-gray-200">
                             <a href="{{ route('product-edit', $item->id) }}" class="px-2 text-blue-600 hover:text-blue-800">Edit</a>
                             <button class="px-2 text-red-600 hover:text-red-800" onclick="confirmDelete('{{ route('product-delete', $item->id) }}')">
-                            Hapus
+                                Hapus
                             </button>
                         </td>
                     </tr>
@@ -93,27 +111,29 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @if(session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        </script>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('
+            success ') }}',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    </script>
     @endif
     @if(session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: '{{ session('error') }}',
-                showConfirmButton: true
-            });
-        </script>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('
+            error ') }}',
+            showConfirmButton: true
+        });
+    </script>
     @endif
-    
+
     <script>
         function confirmDelete(deleteUrl) {
             Swal.fire({

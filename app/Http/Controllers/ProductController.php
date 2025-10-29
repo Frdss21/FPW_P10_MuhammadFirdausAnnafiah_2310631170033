@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProductsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\File;
 use Route;
 
 class ProductController extends Controller
@@ -15,7 +19,7 @@ class ProductController extends Controller
     {
         // Membuat query builder baru untuk model Product
         $query = Product::query();
-        
+
         // Cek apakah ada parameter 'search' di request
         if ($request->has('search') && $request->search != '') {
             // Melakukan pencarian berdasarkan nama produk
@@ -93,13 +97,13 @@ class ProductController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-        'product_name' => 'required|string|max:255',
-        'unit' => 'required|string|max:255',
-        'type' => 'required|string|max:255',
-        'information' => 'nullable|string',
-        'qty' => 'required|integer|min:1',
-        'producer' => 'required|string|max:255',
-    ]);
+            'product_name' => 'required|string|max:255',
+            'unit' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
+            'information' => 'nullable|string',
+            'qty' => 'required|integer|min:1',
+            'producer' => 'required|string|max:255',
+        ]);
 
         $product = Product::findOrFail($id);
         $update = $product->update([
@@ -131,5 +135,29 @@ class ProductController extends Controller
         }
 
         return redirect()->back()->with('error', 'Produk tidak ditemukan!');
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new ProductsExport, 'products.xlsx');
+    }
+
+    public function exportPDF()
+    {
+        $products = Product::all();
+        $pdf = Pdf::loadView('master-data.product-master.export-pdf', compact('products'));
+        return $pdf->download('Laporan_Data_Produk.pdf');
+    }
+
+    public function exportJPG()
+    {
+        $path = storage_path('app/public/laporan_produk.jpg');
+
+        // ambil tampilan halaman index
+        Browsershot::url(route('product-index'))
+            ->windowSize(1280, 800)
+            ->save($path);
+
+        return response()->download($path);
     }
 }
