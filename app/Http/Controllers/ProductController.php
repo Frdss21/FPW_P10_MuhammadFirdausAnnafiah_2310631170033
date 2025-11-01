@@ -7,7 +7,7 @@ use App\Models\Product;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProductsExport;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\File;
+use Spatie\Browsershot\Browsershot;
 use Route;
 
 class ProductController extends Controller
@@ -110,7 +110,7 @@ class ProductController extends Controller
             'product_name' => $request->product_name,
             'unit' => $request->unit,
             'type' => $request->type,
-            'information' => $request->information,
+            'information' => $request->input('information'),
             'qty' => $request->qty,
             'producer' => $request->producer,
         ]);
@@ -151,13 +151,15 @@ class ProductController extends Controller
 
     public function exportJPG()
     {
-        $path = storage_path('app/public/laporan_produk.jpg');
+        $products = Product::all();
+        $html = view('master-data.product-master.export-pdf', compact('products'))->render();
+        $path = public_path('Laporan_Data_Produk.jpg');
 
-        // ambil tampilan halaman index
-        Browsershot::url(route('product-index'))
-            ->windowSize(1280, 800)
+        \Spatie\Browsershot\Browsershot::html($html)
+            ->windowSize(1200, 800)
+            ->waitUntilNetworkIdle()
             ->save($path);
 
-        return response()->download($path);
+        return response()->download($path)->deleteFileAfterSend(true);
     }
 }

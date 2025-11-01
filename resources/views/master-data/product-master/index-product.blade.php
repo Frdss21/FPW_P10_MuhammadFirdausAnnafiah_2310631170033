@@ -20,13 +20,13 @@
 
             <form method="GET" action="{{ route('product-index') }}" class="mb-4 flex items-center">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk..." class="w-1/4 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <button type="submit" class="ml-2 rounded-lg bg-blue-500 px-4 py-2 text-white shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button type="submit" class="ml-2 rounded-lg bg-blue-500 px-4 py-2 text-white shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     Cari
                 </button>
             </form>
 
             <a href="{{ route('product-create') }}">
-                <button class="px-6 py-4 text-white bg-pink-500 border border-green-500 rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button class="px-6 py-4 text-white bg-pink-500 border border-pink-500 rounded-lg shadow-lg hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500">
                     Add product data
                 </button>
             </a>
@@ -134,6 +134,25 @@
     </script>
     @endif
 
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function exportToJpg() {
+            const table = document.querySelector('.overflow-x-auto');
+            const fileName = 'Laporan_Data_Produk.jpg';
+
+            table.prepend(header);
+
+            html2canvas(table, {
+                scale: 2
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = canvas.toDataURL('image/jpeg', 1.0);
+                link.click();
+                header.remove();
+            });
+        }
+    </script>
     <script>
         function confirmDelete(deleteUrl) {
             Swal.fire({
