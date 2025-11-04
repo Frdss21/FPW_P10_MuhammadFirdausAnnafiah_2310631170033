@@ -1,79 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Data Produk - JPG Export</title>
+    <title>Laporan Mutasi Stock Bulanan (JPG)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
-            background-color: white;
-            color: #000;
             margin: 40px;
+            background: white;
         }
-        h2, p {
+
+        /* HEADER FLEX */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        .header img {
+            width: 70px;
+            height: auto;
+        }
+
+        .header-title {
+            flex: 1;
             text-align: center;
-            margin: 0;
+            margin-right: 70px; /* beri jarak agar tidak terlalu rapat dengan logo */
         }
-        h2 {
+
+        .header-title h2 {
+            margin: 0;
             font-size: 18pt;
             font-weight: bold;
         }
-        p.sub {
+
+        .header-title h3 {
+            margin: 3px 0 5px 0;
             font-size: 13pt;
-            margin-top: 5px;
+            font-weight: bold;
         }
-        p.date {
-            font-size: 10pt;
-            margin-top: 3px;
+
+        .header-title p {
+            margin: 0;
+            font-style: italic;
+            font-size: 11pt;
         }
+
+        /* TABEL DATA */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 25px;
+            margin-top: 20px;
         }
+
         th, td {
             border: 1px solid #333;
             padding: 6px;
-            text-align: left;
         }
+
         th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+            background-color: #d9ead3;
             text-align: center;
+            font-weight: bold;
+        }
+
+        td {
+            vertical-align: top;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 40px;
+            font-size: 11px;
+        }
+
+        .footer-sign {
+            margin-top: 60px;
+            text-align: right;
         }
     </style>
 </head>
 <body>
-    <h2>PT Mahkota Indah Jaya</h2>
-    <p class="sub">Rekap Stock Produk Gudang</p>
-    <p class="date">Tanggal: {{ date('d M Y') }}</p>
+    {{-- HEADER: Logo kiri, judul tengah --}}
+    <div class="header">
+        <img src="{{ public_path('logo.jpeg') }}" alt="Logo">
+        <div class="header-title">
+            <h2>PT UUS MIRACLE</h2>
+            <h3>REKAP MUTASI STOCK BULANAN</h3>
+            <p>Periode: {{ \Carbon\Carbon::now()->startOfMonth()->format('d M Y') }}
+                s/d {{ \Carbon\Carbon::now()->endOfMonth()->format('d M Y') }}</p>
+        </div>
+    </div>
 
+    {{-- TABEL DATA --}}
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Product Name</th>
+                <th>Name</th>
                 <th>Unit</th>
-                <th>Type</th>
-                <th>Information</th>
-                <th>Quantity</th>
-                <th>Producer</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Stock</th>
+                <th>Supplier</th>
+                <th>Barang Masuk</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($products as $item)
             <tr>
-                <td>{{ $item->id }}</td>
                 <td>{{ $item->product_name }}</td>
                 <td>{{ $item->unit }}</td>
                 <td>{{ $item->type }}</td>
                 <td>{{ $item->information }}</td>
                 <td>{{ $item->qty }}</td>
                 <td>{{ $item->producer }}</td>
+                <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
+
+    {{-- FOOTER --}}
+    <footer>
+        <p>* Data ini bersifat rahasia.</p>
+        <p>Tanggal cetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }}</p>
+
+        <div class="footer-sign">
+            <p>Diketahui,</p>
+            <br><br><br>
+            <p>Muhammad Firdaus Annafiah,S.Kom</p>
+        </div>
+    </footer>
 </body>
 </html>
