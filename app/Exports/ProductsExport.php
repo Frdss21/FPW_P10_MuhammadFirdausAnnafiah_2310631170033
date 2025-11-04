@@ -44,7 +44,7 @@ class ProductsExport implements FromCollection, WithEvents
                 $drawing->setWorksheet($sheet);
 
                 // Header
-                $sheet->setCellValue('C1', 'PT MAHKOTA INDAH JAYA');
+                $sheet->setCellValue('C1', 'PT UUS MIRACLE');
                 $sheet->setCellValue('C2', 'REKAP MUTASI STOCK BULANAN');
                 $sheet->setCellValue('C3', 'Periode: ' . Carbon::now()->startOfMonth()->format('d M Y') . ' s/d ' . Carbon::now()->endOfMonth()->format('d M Y'));
 
@@ -93,7 +93,7 @@ class ProductsExport implements FromCollection, WithEvents
                 $sheet->setCellValue("A{$footerStart}", "* Data ini bersifat rahasia.");
                 $sheet->setCellValue("A" . ($footerStart + 1), "Tanggal cetak: $now");
                 $sheet->setCellValue("F" . ($footerStart + 3), "Diketahui,");
-                $sheet->setCellValue("F" . ($footerStart + 7), "Kepala Logistik");
+                $sheet->setCellValue("F" . ($footerStart + 7), "Muhammad Firdaus Annafiah,S.Kom");
 
                 // Auto-size columns
                 foreach (range('A', 'G') as $col) {
