@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string("type");
             $table->string("information");
             $table->string("qty");
-            $table->string("producer"); // tambahin ini
+            $table->string("producer");
+            $table->unsignedBigInteger('supplier_id')->nullable(); // tambahin ini
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product');
+        Schema::dropIfExists('products');
     }
 };

@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProductsExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Spatie\Browsershot\Browsershot;
+use App\Models\Supplier;
 use Route;
 
 class ProductController extends Controller
@@ -17,8 +18,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // Membuat query builder baru untuk model Product
-        $query = Product::query();
+        $query = Product::with('supplier');
 
         // Cek apakah ada parameter 'search' di request
         if ($request->has('search') && $request->search != '') {
@@ -44,7 +44,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view("master-data.product-master.create-product");
+        $suppliers = Supplier::all();
+        return view("master-data.product-master.create-product", compact('suppliers'));
     }
 
     /**
@@ -60,6 +61,7 @@ class ProductController extends Controller
             'information' => 'nullable|string',
             'qty' => 'required|integer',
             'producer' => 'required|string|max:255',
+            'supplier_id' => 'required|exists:suppliers,id',
         ]);
 
         // Proses simpan data ke database
@@ -87,8 +89,9 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
+        $suppliers = Supplier::all();
         $product = Product::findOrFail($id);
-        return view('master-data.product-master.edit-product', compact('product'));
+        return view('master-data.product-master.edit-product', compact('product', 'suppliers'));
     }
 
     /**
@@ -103,6 +106,7 @@ class ProductController extends Controller
             'information' => 'nullable|string',
             'qty' => 'required|integer|min:1',
             'producer' => 'required|string|max:255',
+            'supplier_id' => 'required|exists:suppliers,id',
         ]);
 
         $product = Product::findOrFail($id);
@@ -127,7 +131,7 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        $product = Product::find(999);
+        $product = Product::find($id);
 
         if ($product) {
             $product->delete();
